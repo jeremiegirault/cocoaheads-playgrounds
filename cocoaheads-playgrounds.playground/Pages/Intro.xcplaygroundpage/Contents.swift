@@ -1,6 +1,6 @@
 /*:
 
- # Swift playgrounds in a daily workflow
+ # Using Playgrounds in a daily workflow
  
  * [Designing a new System](Designing)
  * [Prototyping UI](UIPrototyping)
