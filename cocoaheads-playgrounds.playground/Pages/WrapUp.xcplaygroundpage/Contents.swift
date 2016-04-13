@@ -1,5 +1,6 @@
 //: [Back to home](Intro)
 /*:
+ # Wrap up
  ## Benefits
  
  * Useful when starting a new feature on production code: iterate quickly before diving into production

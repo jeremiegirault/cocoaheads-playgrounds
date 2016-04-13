@@ -1,5 +1,7 @@
 //: [Back to home](Intro)
 
+//: # Designing a new System
+
 import Foundation
 
 protocol CacheProtocol: class {
@@ -15,23 +17,6 @@ extension CacheProtocol {
     subscript(key: Key) -> Value? {
         get { return get(key) }
         set { put(newValue, forKey: key) }
-    }
-}
-
-final class MyMemCache<Key: Hashable, Value>: CacheProtocol {
-    
-    var dic = [Key: Value]()
-    
-    func get(key: Key) -> Value? {
-        return dic[key]
-    }
-    
-    func put(value: Value?, forKey key: Key) {
-        return dic[key] = value
-    }
-    
-    func removeAll() {
-        dic.removeAll()
     }
 }
 

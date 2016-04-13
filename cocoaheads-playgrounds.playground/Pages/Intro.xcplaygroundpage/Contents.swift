@@ -4,6 +4,7 @@
  
  * [Designing a new System](Designing)
  * [Prototyping UI](UIPrototyping)
+ * [WTF swift moments](WTFSwift)
  * [Wrap Up](WrapUp)
 
 */

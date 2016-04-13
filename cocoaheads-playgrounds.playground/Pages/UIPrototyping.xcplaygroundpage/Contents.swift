@@ -1,73 +1,98 @@
 //: [Back to home](Intro)
 
+//: # Prototyping UI
+
 import UIKit
 import XCPlayground
 
-let image = [#Image(imageLiteral: "Icon.png")#]
-let meme = [#Image(imageLiteral: "hurah.jpg")#]
-
-enum Direction {
-    case Forward
-    case Backward
+struct CircleButtonListViewItem {
+    let title: String
+    let image: UIImage?
+    let color: UIColor
 }
 
-class MyController: UIViewController {
-    
-    private lazy var icon: UIImageView = UIImageView(image: meme)
-    private lazy var restartAnim: UIButton = UIButton(type: .System)
-    private var direction: Direction = .Forward
-    
-    override func viewDidLoad() {
-        view.backgroundColor = .whiteColor()
-        
-        [icon, restartAnim].forEach(view.addSubview)
-        
-        restartAnim.setTitle("restart", forState: .Normal)
-        restartAnim.addTarget(self, action: #selector(changeDirection), forControlEvents: .TouchUpInside)
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        icon.frame = CGRect(x: 10, y: 10, width: 64, height: 64)
-        
-        restartAnim.sizeToFit()
-        restartAnim.frame.origin.y = 10
-        restartAnim.center.x = view.center.x
-    }
-    
-    @objc func changeDirection() {
-        direction = (direction == .Forward) ? .Backward : .Forward
-        restartAnimation()
-    }
-}
+let image = [#Image(imageLiteral: "Icon100.png")#]
 
-extension MyController {
-    func restartAnimation() {
-        icon.layer.removeAllAnimations()
+class CircleButtonListView: UIView {
+    let items: [CircleButtonListViewItem]
+    let maxItemCount = 4
+    
+    init(items: [CircleButtonListViewItem]) {
+        self.items = items
+        super.init(frame: CGRect(x: 0, y: 0, width: 320, height: 100))
         
-        let pathAnim = CAKeyframeAnimation(keyPath: "position")
-        pathAnim.calculationMode = kCAAnimationPaced
-        pathAnim.removedOnCompletion = false
-        pathAnim.fillMode = kCAFillModeForwards
-        pathAnim.repeatCount = Float.infinity
-        pathAnim.rotationMode = "auto"
-        pathAnim.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
-        pathAnim.duration = 25.0;
+        setup()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        self.items = []
+        super.init(coder: aDecoder)
         
-        // Create a circle path
-        let path = CGPathCreateWithRoundedRect(view.bounds.insetBy(dx: 100, dy: 100), 25, 25, nil)
-        if direction == .Forward {
-            pathAnim.path = path
-        } else {
-            let reversed = UIBezierPath(CGPath: path).bezierPathByReversingPath().CGPath
-            pathAnim.path = reversed
+        setup()
+    }
+    
+    private func setup() {
+        putItems(self.items)
+    }
+    
+    override func layoutSubviews() {
+        subviews.enumerate().forEach { index, view in
+            view.center = CGPoint(x: computeX(index, viewCount: subviews.count), y: center.y)
         }
+    }
+    
+    private func computeX(viewIndex: Int, viewCount: Int) -> CGFloat {
+        return CGFloat(viewIndex+1) * bounds.width / CGFloat(viewCount+1)
+    }
+    
+    private func putItems(items: [CircleButtonListViewItem], animatedFromIndex: Int? = nil) {
+        subviews.forEach { $0.removeFromSuperview() }
         
-        icon.layer.addAnimation(pathAnim, forKey: "movingAnim")
+        items
+            .prefix(maxItemCount)
+            .enumerate()
+            .forEach { index, item in
+                addItem(item, atIndex: index)
+            }
+        
+        if let animatedFromIndex = animatedFromIndex {
+            let x = computeX(animatedFromIndex, viewCount: min(maxItemCount, items.count))
+            
+            subviews.forEach { view in
+                view.center = CGPoint(x: x, y: center.y)
+                view.alpha = 0.0
+            }
+            
+            UIView.animateWithDuration(0.8, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.3, options: [], animations: {
+                self.subviews.forEach { $0.alpha = 1.0 }
+                self.setNeedsLayout()
+                self.layoutIfNeeded()
+                }, completion: nil)
+        }
+    }
+    
+    private func addItem(item: CircleButtonListViewItem, atIndex index: Int) {
+        let rv = UIButton(type: .Custom)
+        
+        let size: CGFloat = 50
+        rv.addTarget(self, action: #selector(CircleButtonListView.buttonTouched(_:)), forControlEvents: .TouchUpInside)
+        rv.tag = index
+        rv.setImage(item.image, forState: .Normal)
+        rv.backgroundColor = item.color
+        rv.layer.cornerRadius = size*0.5
+        rv.bounds = CGRect(x: 0, y: 0, width: size, height: size)
+        
+        addSubview(rv)
+    }
+    
+    func buttonTouched(button: UIButton) {
+        putItems(self.items, animatedFromIndex: button.tag)
     }
 }
 
-// start live preview
-
-XCPlaygroundPage.currentPage.liveView = MyController()
+XCPlaygroundPage.currentPage.liveView = CircleButtonListView(items: [
+    CircleButtonListViewItem(title: "test", image: image, color: .orangeColor()),
+    CircleButtonListViewItem(title: "test", image: image, color: .yellowColor()),
+    CircleButtonListViewItem(title: "test", image: image, color: .purpleColor()),
+    CircleButtonListViewItem(title: "test", image: image, color: .blueColor())
+    ])

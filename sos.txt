@@ -1,0 +1,5 @@
+UI :
+
+private func computeX(viewIndex: Int, viewCount: Int) -> CGFloat {
+	return CGFloat(viewIndex+1) * bounds.width / CGFloat(viewCount+1)
+}
