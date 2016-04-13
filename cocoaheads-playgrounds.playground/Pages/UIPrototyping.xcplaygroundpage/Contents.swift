@@ -96,3 +96,5 @@ XCPlaygroundPage.currentPage.liveView = CircleButtonListView(items: [
     CircleButtonListViewItem(title: "test", image: image, color: .purpleColor()),
     CircleButtonListViewItem(title: "test", image: image, color: .blueColor())
     ])
+
+//: [Next](@next)
