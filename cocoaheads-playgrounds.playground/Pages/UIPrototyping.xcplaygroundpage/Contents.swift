@@ -5,96 +5,39 @@
 import UIKit
 import XCPlayground
 
-struct CircleButtonListViewItem {
-    let title: String
-    let image: UIImage?
-    let color: UIColor
-}
-
-let image = [#Image(imageLiteral: "Icon100.png")#]
-
-class CircleButtonListView: UIView {
-    let items: [CircleButtonListViewItem]
-    let maxItemCount = 4
-    
-    init(items: [CircleButtonListViewItem]) {
-        self.items = items
-        super.init(frame: CGRect(x: 0, y: 0, width: 320, height: 100))
-        
+class MyView: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setup()
     }
     
     required init?(coder aDecoder: NSCoder) {
-        self.items = []
         super.init(coder: aDecoder)
-        
         setup()
     }
-    
     private func setup() {
-        putItems(self.items)
-    }
-    
-    override func layoutSubviews() {
-        subviews.enumerate().forEach { index, view in
-            view.center = CGPoint(x: computeX(index, viewCount: subviews.count), y: center.y)
-        }
-    }
-    
-    private func computeX(viewIndex: Int, viewCount: Int) -> CGFloat {
-        return CGFloat(viewIndex+1) * bounds.width / CGFloat(viewCount+1)
-    }
-    
-    private func putItems(items: [CircleButtonListViewItem], animatedFromIndex: Int? = nil) {
-        subviews.forEach { $0.removeFromSuperview() }
+        backgroundColor = [#Color(colorLiteralRed: 0.1898319721, green: 0.3972307742, blue: 0.8150287867, alpha: 1)#]
         
-        items
-            .prefix(maxItemCount)
-            .enumerate()
-            .forEach { index, item in
-                addItem(item, atIndex: index)
-            }
+        let waveLayer = CAGradientLayer()
         
-        if let animatedFromIndex = animatedFromIndex {
-            let x = computeX(animatedFromIndex, viewCount: min(maxItemCount, items.count))
-            
-            subviews.forEach { view in
-                view.center = CGPoint(x: x, y: center.y)
-                view.alpha = 0.0
-            }
-            
-            UIView.animateWithDuration(0.8, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.3, options: [], animations: {
-                self.subviews.forEach { $0.alpha = 1.0 }
-                self.setNeedsLayout()
-                self.layoutIfNeeded()
-                }, completion: nil)
-        }
-    }
-    
-    private func addItem(item: CircleButtonListViewItem, atIndex index: Int) {
-        let rv = UIButton(type: .Custom)
-        
-        let size: CGFloat = 50
-        rv.addTarget(self, action: #selector(CircleButtonListView.buttonTouched(_:)), forControlEvents: .TouchUpInside)
-        rv.tag = index
-        rv.setImage(item.image, forState: .Normal)
-        rv.backgroundColor = item.color
-        rv.layer.cornerRadius = size*0.5
-        rv.bounds = CGRect(x: 0, y: 0, width: size, height: size)
-        
-        addSubview(rv)
-    }
-    
-    func buttonTouched(button: UIButton) {
-        putItems(self.items, animatedFromIndex: button.tag)
+        let gradColor = [#Color(colorLiteralRed: 0.4859457612, green: 0.6706994176, blue: 0.9988729954, alpha: 1)#] //UIColor(white: 1.0, alpha: 0.5) //
+        let border = gradColor.colorWithAlphaComponent(0.0)
+        waveLayer.colors = [ border, gradColor, gradColor, border ].map { $0.CGColor }
+        waveLayer.locations = [0, 0.0, 1, 1 ]
+        waveLayer.startPoint = CGPoint(x: 0, y: 0.5)
+        waveLayer.endPoint = CGPoint(x: 1, y: 0.5)
+        waveLayer.frame = CGRect(x: 0, y: 0, width: 100, height: 32)
+        let anim = CABasicAnimation(keyPath: "transform.translation.x")
+        anim.repeatCount = Float.infinity
+        anim.fromValue = -32
+        //anim.autoreverses = true
+        anim.toValue = 300
+        anim.duration = 2
+        waveLayer.addAnimation(anim, forKey: "waving")
+        layer.addSublayer(waveLayer)
     }
 }
 
-XCPlaygroundPage.currentPage.liveView = CircleButtonListView(items: [
-    CircleButtonListViewItem(title: "test", image: image, color: .orangeColor()),
-    CircleButtonListViewItem(title: "test", image: image, color: .yellowColor()),
-    CircleButtonListViewItem(title: "test", image: image, color: .purpleColor()),
-    CircleButtonListViewItem(title: "test", image: image, color: .blueColor())
-    ])
+XCPlaygroundPage.currentPage.liveView = MyView(frame: CGRect(x: 0, y: 0, width: 300, height: 2))
 
 //: [Next](@next)
